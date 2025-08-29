@@ -65,9 +65,9 @@
         .code {
             background: #2c3e50;
             color: #ecf0f1;
-            padding: 20px;
-            border-radius: 10px;
-            font-family: 'Courier New', monospace;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
             word-break: break-all;
             margin: 20px 0;
             font-size: 1.1em;
@@ -161,6 +161,41 @@
             display: none;
         }
         
+        .platform-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .platform-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .platform-card.instagram {
+            border-left: 5px solid #E4405F;
+        }
+        
+        .platform-card.discord {
+            border-left: 5px solid #5865F2;
+        }
+        
+        .platform-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .platform-icon.instagram {
+            color: #E4405F;
+        }
+        
+        .platform-icon.discord {
+            color: #5865F2;
+        }
+        
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -180,7 +215,7 @@
     <div class="container">
         <div class="header">
             <h1>📱 Social Aggregator</h1>
-            <p>OAuth Callback Handler for Instagram Integration</p>
+            <p>OAuth Callback Handler for Instagram & Discord Integration</p>
         </div>
         
         <div class="card">
@@ -191,30 +226,49 @@
             <div class="oauth-section">
                 <h2>🔐 OAuth Callback URLs</h2>
                 
-                <h3>Instagram OAuth</h3>
-                <p><strong>Callback URL:</strong></p>
-                <div class="code" id="instagram-url">https://ikarman4.github.io/oauth-callbacks/instagram/callback</div>
-                <button class="copy-button" onclick="copyToClipboard('instagram-url')">Copy URL</button>
+                <div class="platform-card instagram">
+                    <div class="platform-icon instagram">📸</div>
+                    <h3>Instagram OAuth</h3>
+                    <p><strong>Callback URL:</strong></p>
+                    <div class="code" id="instagram-url">https://ikarman4.github.io/oauth-callbacks/instagram/callback</div>
+                    <button class="copy-button" onclick="copyToClipboard('instagram-url')">Copy URL</button>
+                    <p><em>Status: Ready for Instagram Basic Display API integration</em></p>
+                </div>
                 
-                <h3>Discord OAuth</h3>
-                <p><strong>Callback URL:</strong></p>
-                <div class="code" id="discord-url">https://ikarman4.github.io/oauth-callbacks/discord/callback</div>
-                <button class="copy-button" onclick="copyToClipboard('discord-url')">Copy URL</button>
+                <div class="platform-card discord">
+                    <div class="platform-icon discord">🎮</div>
+                    <h3>Discord OAuth</h3>
+                    <p><strong>Callback URL:</strong></p>
+                    <div class="code" id="discord-url">https://ikarman4.github.io/oauth-callbacks/discord/callback</div>
+                    <button class="copy-button" onclick="copyToClipboard('discord-url')">Copy URL</button>
+                    <p><em>Status: Ready for Discord OAuth2 integration</em></p>
+                </div>
             </div>
             
             <div class="oauth-section">
                 <h2>⚙️ Setup Instructions</h2>
                 
-                <h3>1. Update Meta Developer Console</h3>
+                <h3>1. Discord OAuth Setup (Recommended to start with)</h3>
+                <p>Since Instagram OAuth has account creation issues, let's get Discord working first:</p>
+                <ol>
+                    <li>Go to [Discord Developer Portal](https://discord.com/developers/applications)</li>
+                    <li>Create a new application or use existing one</li>
+                    <li>Go to "OAuth2" → "General"</li>
+                    <li>Add redirect URI: <code>https://ikarman4.github.io/oauth-callbacks/discord/callback</code></li>
+                    <li>Copy your Client ID and Client Secret</li>
+                </ol>
+                
+                <h3>2. Instagram OAuth Setup (When Meta account issues are resolved)</h3>
                 <p>In your Instagram Basic Display app settings, set the redirect URI to:</p>
                 <div class="code">https://ikarman4.github.io/oauth-callbacks/instagram/callback</div>
                 
-                <h3>2. Update Your Environment Configuration</h3>
+                <h3>3. Update Your Environment Configuration</h3>
                 <p>Edit <code>androidApp/src/main/assets/env.properties</code>:</p>
-                <div class="code">INSTAGRAM_REDIRECT_URI=https://ikarman4.github.io/oauth-callbacks/instagram/callback</div>
+                <div class="code">DISCORD_REDIRECT_URI=https://ikarman4.github.io/oauth-callbacks/discord/callback
+INSTAGRAM_REDIRECT_URI=https://ikarman4.github.io/oauth-callbacks/instagram/callback</div>
                 
-                <h3>3. Test the OAuth Flow</h3>
-                <p>Launch your Android app and try connecting Instagram. You'll be redirected here after authorization.</p>
+                <h3>4. Test the OAuth Flow</h3>
+                <p>Launch your Android app and try connecting Discord first. You'll be redirected here after authorization.</p>
             </div>
             
             <div class="warning">
@@ -223,7 +277,8 @@
                     <li>This GitHub Pages site handles OAuth callbacks automatically</li>
                     <li>No need to run local servers during development</li>
                     <li>The authorization code is only valid for a short time</li>
-                    <li>Always use HTTPS URLs for Instagram OAuth</li>
+                    <li>Always use HTTPS URLs for OAuth (required by both Instagram and Discord)</li>
+                    <li><strong>Start with Discord OAuth</strong> since Instagram has account creation issues</li>
                 </ul>
             </div>
         </div>
@@ -232,14 +287,41 @@
             <div class="oauth-section">
                 <h2>🔍 How It Works</h2>
                 <ol>
-                    <li>User clicks "Connect Instagram" in your Android app</li>
-                    <li>App opens Instagram OAuth page in browser</li>
+                    <li>User clicks "Connect Discord/Instagram" in your Android app</li>
+                    <li>App opens OAuth page in browser</li>
                     <li>User authorizes your app</li>
-                    <li>Instagram redirects to this GitHub Pages site</li>
+                    <li>Platform redirects to this GitHub Pages site</li>
                     <li>Site displays the authorization code</li>
                     <li>User copies the code and returns to the app</li>
                     <li>App exchanges the code for an access token</li>
                 </ol>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="oauth-section">
+                <h2>🎯 Development Priority</h2>
+                
+                <h3>🚀 Phase 1: Discord OAuth (Start Here)</h3>
+                <p>Discord OAuth is easier to set up and will give you a working OAuth flow:</p>
+                <ul>
+                    <li>✅ Discord Developer Portal is more accessible</li>
+                    <li>✅ No phone verification issues</li>
+                    <li>✅ Faster approval process</li>
+                    <li>✅ Great for testing OAuth flow</li>
+                </ul>
+                
+                <h3>📸 Phase 2: Instagram OAuth (When Ready)</h3>
+                <p>Once Meta account issues are resolved:</p>
+                <ul>
+                    <li>🔒 Requires Meta Developer account</li>
+                    <li>🔒 Phone verification needed</li>
+                    <li>🔒 App review process</li>
+                    <li>🔒 More complex setup</li>
+                </ul>
+                
+                <h3>💡 Recommendation</h3>
+                <p><strong>Start with Discord OAuth</strong> to get your OAuth flow working, then tackle Instagram when the account issues are resolved. This way you can develop and test your integration while working on the Instagram setup.</p>
             </div>
         </div>
         
@@ -279,93 +361,11 @@
             });
         }
         
-        // Auto-copy Instagram URL on page load
+        // Auto-copy Discord URL on page load (since it's easier to set up)
         window.addEventListener('load', function() {
-            // Check if we're on the Instagram callback page
-            if (window.location.pathname.includes('/instagram/callback')) {
-                const urlParams = new URLSearchParams(window.location.search);
-                const code = urlParams.get('code');
-                const error = urlParams.get('error');
-                
-                if (code) {
-                    showInstagramSuccess(code, urlParams.get('state'));
-                } else if (error) {
-                    showInstagramError(error, urlParams.get('error_reason'), urlParams.get('error_description'));
-                }
-            }
+            console.log('🎮 Discord OAuth callback handler ready at: https://ikarman4.github.io/oauth-callbacks/discord/callback');
+            console.log('📸 Instagram OAuth callback handler ready at: https://ikarman4.github.io/oauth-callbacks/instagram/callback');
         });
-        
-        function showInstagramSuccess(code, state) {
-            const container = document.querySelector('.container');
-            container.innerHTML = `
-                <div class="header">
-                    <h1>✅ Instagram OAuth Successful!</h1>
-                    <p>Your Instagram account has been successfully authorized!</p>
-                </div>
-                
-                <div class="card">
-                    <div class="success">
-                        <h3>Authorization Code Received</h3>
-                        <p>Your Instagram account has been successfully authorized!</p>
-                    </div>
-                    
-                    <div class="oauth-section">
-                        <h3>OAuth Details:</h3>
-                        <p><strong>Authorization Code:</strong></p>
-                        <div class="code">${code}</div>
-                        <button class="copy-button" onclick="copyToClipboard('auth-code')">Copy Code</button>
-                        <p><strong>State:</strong> ${state || 'None'}</p>
-                    </div>
-                    
-                    <div class="oauth-section">
-                        <h3>Next Steps:</h3>
-                        <p>1. Copy the authorization code above</p>
-                        <p>2. Return to your Android app</p>
-                        <p>3. Paste the code to complete the connection</p>
-                    </div>
-                    
-                    <p><a href="/oauth-callbacks/" class="button">← Back to Instructions</a></p>
-                </div>
-            `;
-            
-            // Auto-copy code to clipboard
-            setTimeout(function() {
-                navigator.clipboard.writeText(code).then(function() {
-                    console.log('Authorization code copied to clipboard');
-                });
-            }, 1000);
-        }
-        
-        function showInstagramError(error, reason, description) {
-            const container = document.querySelector('.container');
-            container.innerHTML = `
-                <div class="header">
-                    <h1>❌ Instagram OAuth Error</h1>
-                    <p>There was an error during the authorization process</p>
-                </div>
-                
-                <div class="card">
-                    <div class="error">
-                        <h3>Error: ${error}</h3>
-                        <p><strong>Reason:</strong> ${reason || 'Unknown'}</p>
-                        <p><strong>Description:</strong> ${description || 'No description provided'}</p>
-                    </div>
-                    
-                    <div class="oauth-section">
-                        <h3>What happened?</h3>
-                        <p>There was an error during the Instagram authorization process. This could be due to:</p>
-                        <ul>
-                            <li>User denied permission</li>
-                            <li>Invalid redirect URI</li>
-                            <li>App configuration issues</li>
-                            <li>Network problems</li>
-                        </ul>
-                    </div>
-                    
-                    <p><a href="/oauth-callbacks/" class="button">← Back to Instructions</a></p>
-                </div>
-            `;
-        }
     </script>
 </body>
 </html>
