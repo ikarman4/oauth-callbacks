@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Aggregator - OAuth Callbacks</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .status {
+            background: #d4edda;
+            color: #155724;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #c3e6cb;
+            margin-bottom: 20px;
+        }
+        
+        .code {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            margin: 20px 0;
+            font-size: 1.1em;
+        }
+        
+        .button {
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 8px;
+            display: inline-block;
+            margin: 10px 5px;
+            transition: background 0.3s ease;
+        }
+        
+        .button:hover {
+            background: #5a6fd8;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .oauth-section {
+            margin: 30px 0;
+        }
+        
+        .oauth-section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .oauth-section h3 {
+            color: #555;
+            margin: 20px 0 10px 0;
+        }
+        
+        .oauth-section p {
+            margin-bottom: 15px;
+            color: #666;
+        }
+        
+        .oauth-section ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .oauth-section li {
+            margin-bottom: 8px;
+        }
+        
+        .copy-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+        
+        .copy-button:hover {
+            background: #218838;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📱 Social Aggregator</h1>
+            <p>OAuth Callback Handler for Instagram Integration</p>
+        </div>
+        
+        <div class="card">
+            <div class="status">
+                ✅ <strong>Server Status:</strong> Ready to handle OAuth callbacks
+            </div>
+            
+            <div class="oauth-section">
+                <h2>🔐 OAuth Callback URLs</h2>
+                
+                <h3>Instagram OAuth</h3>
+                <p><strong>Callback URL:</strong></p>
+                <div class="code" id="instagram-url">https://ikarman4.github.io/oauth-callbacks/instagram/callback</div>
+                <button class="copy-button" onclick="copyToClipboard('instagram-url')">Copy URL</button>
+                
+                <h3>Discord OAuth</h3>
+                <p><strong>Callback URL:</strong></p>
+                <div class="code" id="discord-url">https://ikarman4.github.io/oauth-callbacks/discord/callback</div>
+                <button class="copy-button" onclick="copyToClipboard('discord-url')">Copy URL</button>
+            </div>
+            
+            <div class="oauth-section">
+                <h2>⚙️ Setup Instructions</h2>
+                
+                <h3>1. Update Meta Developer Console</h3>
+                <p>In your Instagram Basic Display app settings, set the redirect URI to:</p>
+                <div class="code">https://ikarman4.github.io/oauth-callbacks/instagram/callback</div>
+                
+                <h3>2. Update Your Environment Configuration</h3>
+                <p>Edit <code>androidApp/src/main/assets/env.properties</code>:</p>
+                <div class="code">INSTAGRAM_REDIRECT_URI=https://ikarman4.github.io/oauth-callbacks/instagram/callback</div>
+                
+                <h3>3. Test the OAuth Flow</h3>
+                <p>Launch your Android app and try connecting Instagram. You'll be redirected here after authorization.</p>
+            </div>
+            
+            <div class="warning">
+                <h3>⚠️ Important Notes</h3>
+                <ul>
+                    <li>This GitHub Pages site handles OAuth callbacks automatically</li>
+                    <li>No need to run local servers during development</li>
+                    <li>The authorization code is only valid for a short time</li>
+                    <li>Always use HTTPS URLs for Instagram OAuth</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="oauth-section">
+                <h2>🔍 How It Works</h2>
+                <ol>
+                    <li>User clicks "Connect Instagram" in your Android app</li>
+                    <li>App opens Instagram OAuth page in browser</li>
+                    <li>User authorizes your app</li>
+                    <li>Instagram redirects to this GitHub Pages site</li>
+                    <li>Site displays the authorization code</li>
+                    <li>User copies the code and returns to the app</li>
+                    <li>App exchanges the code for an access token</li>
+                </ol>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="oauth-section">
+                <h2>📱 For Production</h2>
+                <p>This GitHub Pages setup is production-ready and provides:</p>
+                <ul>
+                    <li>✅ Free HTTPS hosting</li>
+                    <li>✅ Automatic SSL certificates</li>
+                    <li>✅ Global CDN distribution</li>
+                    <li>✅ 99.9% uptime guarantee</li>
+                    <li>✅ No server maintenance required</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+            
+            navigator.clipboard.writeText(text).then(function() {
+                const button = event.target;
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.style.background = '#28a745';
+                
+                setTimeout(function() {
+                    button.textContent = originalText;
+                    button.style.background = '#28a745';
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Failed to copy: ', err);
+                alert('Failed to copy to clipboard');
+            });
+        }
+        
+        // Auto-copy Instagram URL on page load
+        window.addEventListener('load', function() {
+            // Check if we're on the Instagram callback page
+            if (window.location.pathname.includes('/instagram/callback')) {
+                const urlParams = new URLSearchParams(window.location.search);
+                const code = urlParams.get('code');
+                const error = urlParams.get('error');
+                
+                if (code) {
+                    showInstagramSuccess(code, urlParams.get('state'));
+                } else if (error) {
+                    showInstagramError(error, urlParams.get('error_reason'), urlParams.get('error_description'));
+                }
+            }
+        });
+        
+        function showInstagramSuccess(code, state) {
+            const container = document.querySelector('.container');
+            container.innerHTML = `
+                <div class="header">
+                    <h1>✅ Instagram OAuth Successful!</h1>
+                    <p>Your Instagram account has been successfully authorized!</p>
+                </div>
+                
+                <div class="card">
+                    <div class="success">
+                        <h3>Authorization Code Received</h3>
+                        <p>Your Instagram account has been successfully authorized!</p>
+                    </div>
+                    
+                    <div class="oauth-section">
+                        <h3>OAuth Details:</h3>
+                        <p><strong>Authorization Code:</strong></p>
+                        <div class="code">${code}</div>
+                        <button class="copy-button" onclick="copyToClipboard('auth-code')">Copy Code</button>
+                        <p><strong>State:</strong> ${state || 'None'}</p>
+                    </div>
+                    
+                    <div class="oauth-section">
+                        <h3>Next Steps:</h3>
+                        <p>1. Copy the authorization code above</p>
+                        <p>2. Return to your Android app</p>
+                        <p>3. Paste the code to complete the connection</p>
+                    </div>
+                    
+                    <p><a href="/oauth-callbacks/" class="button">← Back to Instructions</a></p>
+                </div>
+            `;
+            
+            // Auto-copy code to clipboard
+            setTimeout(function() {
+                navigator.clipboard.writeText(code).then(function() {
+                    console.log('Authorization code copied to clipboard');
+                });
+            }, 1000);
+        }
+        
+        function showInstagramError(error, reason, description) {
+            const container = document.querySelector('.container');
+            container.innerHTML = `
+                <div class="header">
+                    <h1>❌ Instagram OAuth Error</h1>
+                    <p>There was an error during the authorization process</p>
+                </div>
+                
+                <div class="card">
+                    <div class="error">
+                        <h3>Error: ${error}</h3>
+                        <p><strong>Reason:</strong> ${reason || 'Unknown'}</p>
+                        <p><strong>Description:</strong> ${description || 'No description provided'}</p>
+                    </div>
+                    
+                    <div class="oauth-section">
+                        <h3>What happened?</h3>
+                        <p>There was an error during the Instagram authorization process. This could be due to:</p>
+                        <ul>
+                            <li>User denied permission</li>
+                            <li>Invalid redirect URI</li>
+                            <li>App configuration issues</li>
+                            <li>Network problems</li>
+                        </ul>
+                    </div>
+                    
+                    <p><a href="/oauth-callbacks/" class="button">← Back to Instructions</a></p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
