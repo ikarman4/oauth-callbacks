@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Authorization Complete</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1DB954 0%, #191414 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        h1 {
+            margin: 0 0 10px 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .success-message {
+            background: rgba(29, 185, 84, 0.3);
+            border: 1px solid rgba(29, 185, 84, 0.5);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .button {
+            background: #1DB954;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .button:hover {
+            background: #1ed760;
+            transform: translateY(-2px);
+        }
+        
+        .info {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            font-size: 14px;
+            text-align: left;
+        }
+        
+        .countdown {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1DB954;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">✅</div>
+        <h1>Authorization Complete!</h1>
+        
+        <div class="success-message">
+            <strong>🎉 Success!</strong><br>
+            Your Spotify account has been successfully connected to Social Aggregator.
+        </div>
+        
+        <div class="countdown" id="countdown">
+            This window will close automatically in <span id="timer">5</span> seconds
+        </div>
+        
+        <div>
+            <button class="button" onclick="closeWindow()">Close Now</button>
+            <a href="https://open.spotify.com" class="button" target="_blank">Open Spotify</a>
+        </div>
+        
+        <div class="info">
+            <strong>What's next?</strong><br>
+            • Your listening activity will now appear in your feed<br>
+            • You can see your recently played tracks<br>
+            • Your top artists and tracks will be displayed<br>
+            • Currently playing music will be shown in real-time
+        </div>
+    </div>
+
+    <script>
+        let countdown = 5;
+        const timerEl = document.getElementById('timer');
+        const countdownEl = document.getElementById('countdown');
+        
+        const timer = setInterval(() => {
+            countdown--;
+            timerEl.textContent = countdown;
+            
+            if (countdown <= 0) {
+                clearInterval(timer);
+                closeWindow();
+            }
+        }, 1000);
+        
+        function closeWindow() {
+            // Try to close the window
+            if (window.opener) {
+                window.close();
+            } else {
+                // If we can't close the window, show a message
+                countdownEl.innerHTML = 'Please close this window manually';
+            }
+        }
+        
+        // Auto-close after 5 seconds
+        setTimeout(() => {
+            closeWindow();
+        }, 5000);
+    </script>
+</body>
+</html>

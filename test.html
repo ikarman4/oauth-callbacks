@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth Test Page</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+        }
+        
+        .button {
+            background: #5865F2;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .button:hover {
+            background: #4752C4;
+            transform: translateY(-2px);
+        }
+        
+        .button.spotify {
+            background: #1DB954;
+        }
+        
+        .button.spotify:hover {
+            background: #1ed760;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        
+        .success {
+            border-left: 4px solid #1DB954;
+        }
+        
+        .error {
+            border-left: 4px solid #ff3b30;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 OAuth Test Page</h1>
+        
+        <div class="test-section">
+            <h2>Spotify OAuth Test</h2>
+            <p>Test the Spotify OAuth flow with your configured client ID.</p>
+            <button class="button spotify" onclick="testSpotifyOAuth()">Test Spotify OAuth</button>
+            <div id="spotifyResult" class="result" style="display: none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Discord OAuth Test</h2>
+            <p>Test the Discord OAuth flow with your configured client ID.</p>
+            <button class="button" onclick="testDiscordOAuth()">Test Discord OAuth</button>
+            <div id="discordResult" class="result" style="display: none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>URL Parameters Test</h2>
+            <p>Check what parameters are currently in the URL (useful for debugging callbacks).</p>
+            <button class="button" onclick="showUrlParams()">Show URL Parameters</button>
+            <div id="urlResult" class="result" style="display: none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Instructions</h2>
+            <ol>
+                <li>Make sure your OAuth apps are configured with the correct redirect URIs</li>
+                <li>Click the test buttons to start OAuth flows</li>
+                <li>Authorize the apps on the respective platforms</li>
+                <li>Check the callback pages for success/error messages</li>
+                <li>Use the URL parameters test to debug callback issues</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // Replace with your actual client IDs
+        const SPOTIFY_CLIENT_ID = 'YOUR_SPOTIFY_CLIENT_ID';
+        const DISCORD_CLIENT_ID = '1410871963567788075';
+        
+        function testSpotifyOAuth() {
+            if (SPOTIFY_CLIENT_ID === 'YOUR_SPOTIFY_CLIENT_ID') {
+                showResult('spotifyResult', 'Please update SPOTIFY_CLIENT_ID in the test page', 'error');
+                return;
+            }
+            
+            const state = generateState();
+            const authUrl = 'https://accounts.spotify.com/authorize?' + new URLSearchParams({
+                client_id: SPOTIFY_CLIENT_ID,
+                response_type: 'code',
+                redirect_uri: window.location.origin + '/oauth-callbacks/spotify/callback',
+                scope: 'user-read-recently-played,user-top-read,user-read-currently-playing,user-read-playback-state',
+                state: state
+            }).toString();
+            
+            showResult('spotifyResult', `Starting Spotify OAuth flow...\nState: ${state}\nURL: ${authUrl}`, 'success');
+            
+            // Open in new window
+            window.open(authUrl, 'spotify-oauth', 'width=600,height=700');
+        }
+        
+        function testDiscordOAuth() {
+            const state = generateState();
+            const authUrl = 'https://discord.com/oauth2/authorize?' + new URLSearchParams({
+                client_id: DISCORD_CLIENT_ID,
+                response_type: 'code',
+                redirect_uri: window.location.origin + '/oauth-callbacks/discord/callback',
+                scope: 'activities.read identify presences.read',
+                state: state
+            }).toString();
+            
+            showResult('discordResult', `Starting Discord OAuth flow...\nState: ${state}\nURL: ${authUrl}`, 'success');
+            
+            // Open in new window
+            window.open(authUrl, 'discord-oauth', 'width=600,height=700');
+        }
+        
+        function showUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const params = {};
+            
+            for (const [key, value] of urlParams) {
+                params[key] = value;
+            }
+            
+            const result = `Current URL: ${window.location.href}\n\nURL Parameters:\n${JSON.stringify(params, null, 2)}`;
+            showResult('urlResult', result, Object.keys(params).length > 0 ? 'success' : 'error');
+        }
+        
+        function showResult(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `result ${type}`;
+            element.style.display = 'block';
+        }
+        
+        function generateState() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            for (let i = 0; i < 32; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+        
+        // Listen for messages from OAuth callback windows
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type) {
+                const result = `Received message from OAuth callback:\n${JSON.stringify(event.data, null, 2)}`;
+                if (event.data.type.includes('SPOTIFY')) {
+                    showResult('spotifyResult', result, event.data.success ? 'success' : 'error');
+                } else if (event.data.type.includes('DISCORD')) {
+                    showResult('discordResult', result, event.data.success ? 'success' : 'error');
+                }
+            }
+        });
+        
+        // Show URL parameters on page load if they exist
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.toString()) {
+                showUrlParams();
+            }
+        });
+    </script>
+</body>
+</html>
