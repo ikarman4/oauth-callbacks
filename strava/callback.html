@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strava OAuth Callback</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #FC4C02 0%, #FF6B35 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+        
+        h1 {
+            margin: 0 0 10px 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+        
+        .success {
+            background: rgba(252, 76, 2, 0.3);
+            border: 1px solid rgba(252, 76, 2, 0.5);
+        }
+        
+        .error {
+            background: rgba(255, 59, 48, 0.3);
+            border: 1px solid rgba(255, 59, 48, 0.5);
+        }
+        
+        .loading {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .button {
+            background: #FC4C02;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+        
+        .button:hover {
+            background: #FF6B35;
+            transform: translateY(-2px);
+        }
+        
+        .button:disabled {
+            background: rgba(255, 255, 255, 0.3);
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .details {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            font-size: 14px;
+            text-align: left;
+        }
+        
+        .details pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🏃</div>
+        <h1>Strava Authorization</h1>
+        
+        <div id="status" class="status loading">
+            <div class="spinner"></div>
+            Processing authorization...
+        </div>
+        
+        <div id="details" class="details" style="display: none;">
+            <strong>Authorization Details:</strong>
+            <pre id="detailsContent"></pre>
+        </div>
+        
+        <div id="buttons" style="display: none;">
+            <button id="closeButton" class="button">Close Window</button>
+            <button id="retryButton" class="button" style="display: none;">Try Again</button>
+        </div>
+    </div>
+
+    <script>
+        class StravaOAuthCallback {
+            constructor() {
+                this.statusEl = document.getElementById('status');
+                this.detailsEl = document.getElementById('details');
+                this.detailsContentEl = document.getElementById('detailsContent');
+                this.buttonsEl = document.getElementById('buttons');
+                this.closeButton = document.getElementById('closeButton');
+                this.retryButton = document.getElementById('retryButton');
+                
+                this.init();
+            }
+            
+            init() {
+                this.closeButton.addEventListener('click', () => this.closeWindow());
+                this.retryButton.addEventListener('click', () => this.retry());
+                
+                // Process the OAuth callback
+                this.processCallback();
+            }
+            
+            processCallback() {
+                try {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const code = urlParams.get('code');
+                    const state = urlParams.get('state');
+                    const error = urlParams.get('error');
+                    const errorDescription = urlParams.get('error_description');
+                    
+                    const details = {
+                        code: code,
+                        state: state,
+                        error: error,
+                        errorDescription: errorDescription,
+                        timestamp: new Date().toISOString(),
+                        userAgent: navigator.userAgent
+                    };
+                    
+                    this.showDetails(details);
+                    
+                    if (error) {
+                        this.showError(`Authorization failed: ${error}`, errorDescription);
+                        return;
+                    }
+                    
+                    if (!code) {
+                        this.showError('No authorization code received', 'The authorization code is missing from the callback URL.');
+                        return;
+                    }
+                    
+                    if (!state) {
+                        this.showError('No state parameter received', 'The state parameter is missing from the callback URL.');
+                        return;
+                    }
+                    
+                    // Success - we have the authorization code
+                    this.showSuccess(code, state);
+                    
+                    // Send the authorization code back to the app
+                    this.sendCodeToApp(code, state);
+                    
+                } catch (err) {
+                    this.showError('Processing error', err.message);
+                }
+            }
+            
+            showSuccess(code, state) {
+                this.statusEl.className = 'status success';
+                this.statusEl.innerHTML = `
+                    ✅ Authorization successful!<br>
+                    <small>Code: ${code.substring(0, 20)}...</small>
+                `;
+                this.buttonsEl.style.display = 'block';
+            }
+            
+            showError(title, description) {
+                this.statusEl.className = 'status error';
+                this.statusEl.innerHTML = `
+                    ❌ ${title}<br>
+                    <small>${description || 'An unknown error occurred'}</small>
+                `;
+                this.buttonsEl.style.display = 'block';
+                this.retryButton.style.display = 'inline-block';
+            }
+            
+            showDetails(details) {
+                this.detailsContentEl.textContent = JSON.stringify(details, null, 2);
+                this.detailsEl.style.display = 'block';
+            }
+            
+            sendCodeToApp(code, state) {
+                try {
+                    // Try to send the code back to the app using postMessage
+                    if (window.opener) {
+                        window.opener.postMessage({
+                            type: 'STRAVA_OAUTH_CALLBACK',
+                            code: code,
+                            state: state,
+                            success: true
+                        }, '*');
+                    }
+                    
+                    // Also try using a custom URL scheme (for mobile apps)
+                    const customUrl = `socialaggregator://oauth/strava?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`;
+                    
+                    // Create a hidden iframe to trigger the custom URL scheme
+                    const iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.src = customUrl;
+                    document.body.appendChild(iframe);
+                    
+                    // Clean up the iframe after a short delay
+                    setTimeout(() => {
+                        document.body.removeChild(iframe);
+                    }, 1000);
+                    
+                    console.log('Authorization code sent to app:', code);
+                    
+                } catch (err) {
+                    console.error('Failed to send code to app:', err);
+                }
+            }
+            
+            closeWindow() {
+                // Try to close the window
+                if (window.opener) {
+                    window.close();
+                } else {
+                    // If we can't close the window, redirect to a success page
+                    window.location.href = 'success.html';
+                }
+            }
+            
+            retry() {
+                // Redirect back to the authorization URL
+                const authUrl = 'https://www.strava.com/oauth/authorize?' + new URLSearchParams({
+                    client_id: 'YOUR_STRAVA_CLIENT_ID', // This should be replaced with actual client ID
+                    response_type: 'code',
+                    redirect_uri: window.location.origin + window.location.pathname,
+                    scope: 'read,activity:read_all,profile:read_all',
+                    state: this.generateState()
+                }).toString();
+                
+                window.location.href = authUrl;
+            }
+            
+            generateState() {
+                // Generate a random state parameter
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                let result = '';
+                for (let i = 0; i < 32; i++) {
+                    result += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                return result;
+            }
+        }
+        
+        // Initialize the callback handler when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new StravaOAuthCallback();
+        });
+        
+        // Handle messages from the parent window
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'STRAVA_OAUTH_REQUEST') {
+                console.log('Received OAuth request from parent window');
+            }
+        });
+    </script>
+</body>
+</html>
