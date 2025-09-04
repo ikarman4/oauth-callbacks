@@ -194,10 +194,7 @@
                         return;
                     }
                     
-                    if (!state) {
-                        this.showError('No state parameter received', 'The state parameter is missing from the callback URL.');
-                        return;
-                    }
+                    // Allow proceeding without state for now (mobile browsers may strip it in some flows)
                     
                     // Success - we have the authorization code
                     this.showSuccess(code, state);
@@ -217,6 +214,22 @@
                     <small>Code: ${code.substring(0, 20)}...</small>
                 `;
                 this.buttonsEl.style.display = 'block';
+                // Auto deep-link back to the app and close this tab shortly after
+                try {
+                    const customUrl = `com.socialaggregator.android://oauth/callback?provider=discord&code=${encodeURIComponent(code)}&state=${encodeURIComponent(state || '')}`;
+                    // Attempt navigation
+                    window.location.href = customUrl;
+                    // Also trigger via hidden iframe for some Android browsers
+                    const iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.src = customUrl;
+                    document.body.appendChild(iframe);
+                    setTimeout(() => {
+                        try { window.close(); } catch (e) {}
+                    }, 800);
+                } catch (e) {
+                    console.warn('Deep link failed:', e);
+                }
             }
             
             showError(title, description) {
@@ -247,7 +260,7 @@
                     }
                     
                     // Also try using a custom URL scheme (for mobile apps)
-                    const customUrl = `socialaggregator://oauth/discord?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`;
+                    const customUrl = `com.socialaggregator.android://oauth/callback?provider=discord&code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`;
                     
                     // Create a hidden iframe to trigger the custom URL scheme
                     const iframe = document.createElement('iframe');
@@ -282,7 +295,7 @@
                 const authUrl = 'https://discord.com/api/oauth2/authorize?' + new URLSearchParams({
                     client_id: '1410871963567788075',
                     response_type: 'code',
-                    redirect_uri: window.location.origin + window.location.pathname,
+                    redirect_uri: window.location.href,
                     scope: 'identify',
                     state: this.generateState()
                 }).toString();
