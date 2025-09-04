@@ -279,11 +279,11 @@
             
             retry() {
                 // Redirect back to the authorization URL
-                const authUrl = 'https://discord.com/oauth2/authorize?' + new URLSearchParams({
-                    client_id: '1410871963567788075', // Your Discord client ID
+                const authUrl = 'https://discord.com/api/oauth2/authorize?' + new URLSearchParams({
+                    client_id: '1410871963567788075',
                     response_type: 'code',
                     redirect_uri: window.location.origin + window.location.pathname,
-                    scope: 'activities.read identify presences.read',
+                    scope: 'identify',
                     state: this.generateState()
                 }).toString();
                 
