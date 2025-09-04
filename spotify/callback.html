@@ -141,6 +141,7 @@
         <div id="buttons" style="display: none;">
             <button id="closeButton" class="button">Close Window</button>
             <button id="retryButton" class="button" style="display: none;">Try Again</button>
+            <a id="openAppButton" class="button" href="#" style="display: none; text-decoration: none;">Open in App</a>
         </div>
     </div>
 
@@ -217,6 +218,11 @@
                     <small>Code: ${code.substring(0, 20)}...</small>
                 `;
                 this.buttonsEl.style.display = 'block';
+                const openBtn = document.getElementById('openAppButton');
+                if (openBtn) {
+                    openBtn.href = `com.socialaggregator.android://oauth/callback?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state || '')}`;
+                    openBtn.style.display = 'inline-block';
+                }
             }
             
             showError(title, description) {
@@ -246,19 +252,26 @@
                         }, '*');
                     }
                     
-                    // Also try using a custom URL scheme (for mobile apps)
-                    const customUrl = `socialaggregator://oauth/spotify?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`;
-                    
-                    // Create a hidden iframe to trigger the custom URL scheme
-                    const iframe = document.createElement('iframe');
-                    iframe.style.display = 'none';
-                    iframe.src = customUrl;
-                    document.body.appendChild(iframe);
-                    
-                    // Clean up the iframe after a short delay
+                    // Deep link back into the Android app using its custom scheme
+                    const customUrl = `com.socialaggregator.android://oauth/callback?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`;
+
+                    // Attempt with hidden iframe (fallback for some browsers)
+                    try {
+                        const iframe = document.createElement('iframe');
+                        iframe.style.display = 'none';
+                        iframe.src = customUrl;
+                        document.body.appendChild(iframe);
+                        setTimeout(() => {
+                            document.body.removeChild(iframe);
+                        }, 1500);
+                    } catch (e) {
+                        // ignore
+                    }
+
+                    // Also try a direct navigation which works on most mobile browsers
                     setTimeout(() => {
-                        document.body.removeChild(iframe);
-                    }, 1000);
+                        window.location.href = customUrl;
+                    }, 200);
                     
                     console.log('Authorization code sent to app:', code);
                     
@@ -315,3 +328,5 @@
     </script>
 </body>
 </html>
+
+
