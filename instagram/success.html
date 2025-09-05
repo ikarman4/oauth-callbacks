@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spotify Authorization Complete</title>
+    <title>Instagram Authorization Complete</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #1DB954 0%, #191414 100%);
+            background: linear-gradient(135deg, #E4405F 0%, #405DE6 50%, #5851DB 100%);
             margin: 0;
             padding: 0;
             min-height: 100vh;
@@ -54,15 +54,15 @@
         }
         
         .success-message {
-            background: rgba(29, 185, 84, 0.3);
-            border: 1px solid rgba(29, 185, 84, 0.5);
+            background: rgba(228, 64, 95, 0.3);
+            border: 1px solid rgba(228, 64, 95, 0.5);
             border-radius: 10px;
             padding: 20px;
             margin: 20px 0;
         }
         
         .button {
-            background: #1DB954;
+            background: #E4405F;
             color: white;
             border: none;
             padding: 12px 24px;
@@ -77,7 +77,7 @@
         }
         
         .button:hover {
-            background: #1ed760;
+            background: #d73559;
             transform: translateY(-2px);
         }
         
@@ -93,8 +93,17 @@
         .countdown {
             font-size: 18px;
             font-weight: 600;
-            color: #1DB954;
+            color: #E4405F;
             margin: 10px 0;
+        }
+
+        .warning {
+            background: rgba(255, 193, 7, 0.3);
+            border: 1px solid rgba(255, 193, 7, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 14px;
         }
     </style>
 </head>
@@ -105,7 +114,12 @@
         
         <div class="success-message">
             <strong>🎉 Success!</strong><br>
-            Your Spotify account has been successfully connected to Social Aggregator.
+            Your Instagram account has been successfully connected to Social Aggregator.
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ Professional Account Required</strong><br>
+            Make sure your Instagram account is set to Business or Creator mode for full functionality.
         </div>
         
         <div class="countdown" id="countdown">
@@ -114,15 +128,16 @@
         
         <div>
             <button class="button" onclick="closeWindow()">Close Now</button>
-            <a href="https://open.spotify.com" class="button" target="_blank">Open Spotify</a>
+            <a href="https://www.instagram.com" class="button" target="_blank">Open Instagram</a>
         </div>
         
         <div class="info">
             <strong>What's next?</strong><br>
-            • Your listening activity will now appear in your feed<br>
-            • You can see your recently played tracks<br>
-            • Your top artists and tracks will be displayed<br>
-            • Currently playing music will be shown in real-time
+            • Your Instagram posts will now appear in your feed<br>
+            • Only posts from Professional accounts are accessible<br>
+            • Your media and profile info will be displayed<br>
+            • Content will sync automatically with your app<br><br>
+            <strong>Note:</strong> If you have a personal Instagram account, consider switching to a Business or Creator account in your Instagram settings for full integration.
         </div>
     </div>
 
@@ -158,6 +173,3 @@
     </script>
 </body>
 </html>
-
-
-
